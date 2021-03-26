@@ -1,0 +1,70 @@
+#用于部署运行所依赖的服务
+version: '3'
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:${MYSQL_VERSION}
+    container_name: mysql
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} #设置root帐号密码
+      TZ: Asia/Shanghai
+    ports:
+      - "${MYSQL_HOST_PORT}:3306"
+    volumes:
+      - ${MYSQL_DATA_DIR}:/var/lib/mysql #数据文件挂载
+      - ${MYSQL_CONF_DIR}:/etc/mysql/conf.d #配置文件挂载
+      - ${MYSQL_LOG_DIR}:/var/log/mysql #日志文件挂载
+  # Redis数据库
+  redis:
+    image: redis:${REDIS_VERSION}
+    container_name: redis
+    environment:
+      TZ: Asia/Shanghai
+    command: redis-server --appendonly yes
+    restart: always
+    volumes:
+      - ${REDIS_DATA_DIR}:/data #数据文件挂载
+      - ${REDIS_CONF_FILE}:/etc/redis/redis.conf #配置文件挂载
+    ports:
+      - "${REDIS_HOST_PORT}:6379"
+ 
+  # RabbitMQ消息队列
+  rabbitmq:
+    image: rabbitmq:${RABBITMQ_VERSION}
+    container_name: rabbitmq
+    #privileged: true
+    restart: always
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - ${RABBITMQ_DATA_DIR}:/var/lib/rabbitmq #数据文件挂载
+      #- ${RABBITMQ_CONF_DIR}:/etc/rabbitmq #配置文件挂载
+      - ${RABBITMQ_LOG_DIR}:/var/log/rabbitmq #日志文件挂载
+    ports:
+      - "${RABBITMQ_HOST_PORT}:5672"
+      - "${RABBITMQ_MAG_PORT}:15672"
+ 
+  # Nacos注册中心和配置中心
+  nacos:
+    image: nacos/nacos-server:${NACOS_VERSION}
+    container_name: nacos
+    restart: always
+    environment:
+      - "TZ=Asia/Shanghai"
+      - "PREFER_HOST_MODE=${PREFER_HOST_MODE}"
+      - "MODE=${MODE}"
+      - "SPRING_DATASOURCE_PLATFORM=${SPRING_DATASOURCE_PLATFORM}"
+      - "MYSQL_SERVICE_HOST=${MYSQL_SERVICE_HOST}"
+      - "MYSQL_SERVICE_DB_NAME=${MYSQL_SERVICE_DB_NAME}"
+      - "MYSQL_SERVICE_PORT=${MYSQL_SERVICE_PORT}"
+      - "MYSQL_SERVICE_USER=${MYSQL_SERVICE_USER}"
+      - "MYSQL_SERVICE_PASSWORD=${MYSQL_SERVICE_PASSWORD}"
+    volumes:
+      - ${NACOS_LOG_DIR}:/home/nacos/logs:rw #日志文件挂载
+      - ${NACOS_CONF_DIR}:/home/nacos/init.d #配置文件挂载
+    depends_on:
+      - mysql
+    ports:
+      - 8848:8848
