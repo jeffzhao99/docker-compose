@@ -1,0 +1,105 @@
+#用于部署业务服务
+version: '3'
+services:
+  #  认证模块
+  devicemag-auth:
+    image: registry.cn-beijing.aliyuncs.com/fly_jt/devicemag-auth:1.0.0
+    container_name: devicemag-auth
+    restart: always
+    ports:
+      - 8050:8050
+    volumes:
+      - /mydata/devicemag/log/devicemag-auth:/var
+      - /etc/localtime:/etc/localtime
+    environment:
+      - 'TZ="Asia/Shanghai"'
+#    depends_on:
+#      - mysql
+#      - redis
+#      - nacos
+    external_links:
+      - redis:redis #可以用redis这个域名访问redis服务
+      - mysql:db #可以用db这个域名访问mysql服务
+      - nacos:nacos #可以用nacos这个域名访问nacos服务
+  #  网关模块
+  devicemag-gateway:
+    image: registry.cn-beijing.aliyuncs.com/fly_jt/devicemag-gateway:1.0.0
+    container_name: devicemag-gateway
+    restart: always
+    ports:
+      - 8080:8080
+    volumes:
+      - /mydata/devicemag/log/devicemag-gateway:/var
+      - /etc/localtime:/etc/localtime
+    environment:
+      - 'TZ="Asia/Shanghai"'
+#    depends_on:
+#      - mysql
+#      - redis
+#      - nacos
+    external_links:
+      - redis:redis #可以用redis这个域名访问redis服务
+      - mysql:db #可以用db这个域名访问mysql服务
+      - nacos:nacos #可以用nacos这个域名访问nacos服务
+  # 系统模块
+  devicemag-system:
+    image: registry.cn-beijing.aliyuncs.com/fly_jt/devicemag-system:1.0.0
+    container_name: devicemag-system
+    restart: always
+    ports:
+      - 8070:8070
+    volumes:
+      - /mydata/devicemag/log/devicemag-system:/var
+      - /etc/localtime:/etc/localtime
+    environment:
+      - 'TZ="Asia/Shanghai"'
+#    depends_on:
+#      - mysql
+#      - redis
+#      - nacos
+    external_links:
+      - redis:redis #可以用redis这个域名访问redis服务
+      - mysql:db #可以用db这个域名访问mysql服务
+      - nacos:nacos #可以用nacos这个域名访问nacos服务
+  # 文件模块
+  devicemag-file:
+    image: registry.cn-beijing.aliyuncs.com/fly_jt/devicemag-file:1.0.0
+    container_name: devicemag-file
+    restart: always
+    ports:
+      - 8060:8060
+    volumes:
+      - /mydata/devicemag/log/devicemag-file:/var
+      - /etc/localtime:/etc/localtime
+    environment:
+      - 'TZ="Asia/Shanghai"'
+#    depends_on:
+#      - mysql
+#      - redis
+#      - nacos
+    external_links:
+      - redis:redis #可以用redis这个域名访问redis服务
+      - mysql:db #可以用db这个域名访问mysql服务
+      - nacos:nacos #可以用nacos这个域名访问nacos服务
+  # 核心模块
+  devicemag-core:
+    image: registry.cn-beijing.aliyuncs.com/fly_jt/devicemag-core:1.0.0
+    container_name: devicemag-core
+    restart: always
+    ports:
+      - 8090:8090
+    volumes:
+      - /mydata/devicemag/log/devicemag-core:/var
+      - /etc/localtime:/etc/localtime
+    environment:
+      - 'TZ="Asia/Shanghai"'
+#    depends_on:
+#      - mysql
+#      - redis
+#      - rabbitmq
+#      - nacos
+    external_links:
+      - redis:redis #可以用redis这个域名访问redis服务
+      - mysql:db #可以用db这个域名访问mysql服务
+      - nacos:nacos #可以用nacos这个域名访问nacos服务
+      - rabbitmq:rabbit #可以用rabbit这个域名访问rabbitmq服务
